@@ -42,11 +42,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int main(int argc, const char* argv[])
 {
+    // load parameters
     GlobalProperties* gp = GlobalProperties::getInstance();
     gp->parseConfig();
     gp->parseCmdLine(argc, argv);
 
-    int trainingRounds = 10000; // total number of parameter updates to perform (both CNNs)
+    int trainingRounds = 5000; // total number of parameter updates to perform (both CNNs)
     int valInterval = 1000; // perform a validation pass after this many parameter updates
     int valImages = 1000; // number of validation images (if validation set is smaller, images might be used multiple times)
     

@@ -163,7 +163,7 @@ cv::Mat_<double> dPNP(
     std::vector<cv::Point3f> objPts,
     float eps = 0.1f)
 {
-    int pnpMethod = (imgPts.size() == 4) ? CV_P3P : CV_EPNP; // EPNP is unstable in the minimal setup, P3P is too slow with many points
+    int pnpMethod = (imgPts.size() == 4) ? CV_P3P : CV_ITERATIVE; // CV_ITERATIVE is unstable for 4 points, P3P does not work with many points
   
     cv::Mat_<float> camMat = GlobalProperties::getInstance()->getCamMat();
     cv::Mat_<double> jacobean(6, objPts.size() * 3);
@@ -826,7 +826,7 @@ std::vector<double> refine(
         hypUpdate.first = hyp.first.clone();
         hypUpdate.second = hyp.second.clone();
 
-        if(!safeSolvePnP(localObjPts, localImgPts, camMat, cv::Mat(), hypUpdate.first, hypUpdate.second, true, (localImgPts.size() > 4) ? CV_EPNP : CV_P3P))
+        if(!safeSolvePnP(localObjPts, localImgPts, camMat, cv::Mat(), hypUpdate.first, hypUpdate.second, true, (localImgPts.size() > 4) ? CV_ITERATIVE : CV_P3P))
             break; //abort if PnP fails
 
         if(containsNaNs(hypUpdate.first) || containsNaNs(hypUpdate.second))
@@ -1205,7 +1205,7 @@ void processImage(
             hypUpdate.first = refHyps[h].first.clone();
             hypUpdate.second = refHyps[h].second.clone();
 
-            if(!safeSolvePnP(localObjPts, localImgPts, camMat, cv::Mat(), hypUpdate.first, hypUpdate.second, true, (localImgPts.size() > 4) ? CV_EPNP : CV_P3P))
+            if(!safeSolvePnP(localObjPts, localImgPts, camMat, cv::Mat(), hypUpdate.first, hypUpdate.second, true, (localImgPts.size() > 4) ? CV_ITERATIVE : CV_P3P))
                 break; //abort if PnP fails
 
             if(containsNaNs(hypUpdate.first) || containsNaNs(hypUpdate.second))
@@ -1235,10 +1235,14 @@ void processImage(
     
     expectedLoss = expectedMaxLoss(poseGT, refHyps, sfScores, losses);
     std::cout << "Loss of winning hyp: " << maxLoss(poseGT, poseEst) << ", prob: " << sfScores[hypIdx] << ", expected loss: " << expectedLoss << std::endl;
-   
-    rotErr = poseGT.calcAngularDistance(poseEst);
-    tErr = cv::norm(poseEst.getTranslation() - poseGT.getTranslation());
     
+    // measure pose error in the inverted system (scene pose vs camera pose)
+    Hypothesis invPoseGT = getInvHyp(poseGT);
+    Hypothesis invPoseEst = getInvHyp(poseEst);
+
+    rotErr = invPoseGT.calcAngularDistance(invPoseEst);
+    tErr = cv::norm(invPoseEst.getTranslation() - invPoseGT.getTranslation());
+
     correct = false;
     if(rotErr < 5 && tErr < 50)
     {

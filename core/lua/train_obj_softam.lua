@@ -9,8 +9,7 @@ batchSize = 1600 -- how many patches to process simultaneously, determined by GP
 
 -- parameters of end-to-end training
 storeIntervalE2E = 1000 -- storing snapshot after x updates
-lrInitE2E = 0.0001 -- (initial) learning rate of end-to-end training
-lrDecayE2E = 0.1 -- learning rate decay
+lrInitE2E = 0.00001 -- learning rate of end-to-end training
 momentumE2E = 0.9 -- SGD momentum
 clampE2E = 0.1 -- maximum gradient magnitude
 oFileE2E = 'obj_model_softam_endtoend.net'
@@ -146,7 +145,5 @@ function backward(count, loss, data, gradients)
     torch.save(oFileE2E, model)
   end
     
-    optimState.learningRate = lrInitE2E / (1 + lrDecayE2E * storeCounter)
-    print('TORCH: Updating learning rate. Is now: ' .. optimState.learningRate)
 
 end

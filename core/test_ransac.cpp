@@ -160,10 +160,56 @@ int main(int argc, const char* argv[])
 
         avgCorrect += correct;
 
-        // transform estimated pose to Rodriguez vector + translation
+        // convert back to 7-Scenes norm
         jp::jp_trans_t jpHyp = jp::cv2our(refHyps[hypIdx]);
         Hypothesis hyp(jpHyp.first, jpHyp.second);
+
+        cv::Point3d hypT = hyp.getTranslation();
+        cv::Mat hypR = hyp.getRotation();
+        cv::Mat_<double> hypTrans = cv::Mat_<double>::eye(4, 4);
+        hypR.copyTo(hypTrans.colRange(0, 3).rowRange(0, 3));
+        hypTrans(0, 3) = hypT.x;
+        hypTrans(1, 3) = hypT.y;
+        hypTrans(2, 3) = hypT.z;
+
+        hypTrans = hypTrans.inv();
+
+        cv::Mat_<double> correction = cv::Mat_<double>::eye(4, 4);
+        correction.col(1) = -correction.col(1);
+        correction.col(2) = -correction.col(2);
+        hypTrans = hypTrans * correction;
+
+        hypT.x = hypTrans(0, 3);
+        hypT.y = hypTrans(1, 3);
+        hypT.z = hypTrans(2, 3);
+        hyp.setTranslation(hypT);
+
+        hypTrans.colRange(0, 3).rowRange(0, 3).copyTo(hypR);
+        hyp.setRotation(hypR);
+
+        // transform estimated pose to Rodriguez vector + translation
         std::vector<double> hypV = hyp.getRodVecAndTrans();
+
+        // translation im m
+        hypV[3] /= 1000;
+        hypV[4] /= 1000;
+        hypV[5] /= 1000;
+
+        // correct optional translation
+        std::ifstream transFile("translation.txt");
+
+        std::string line;
+        std::vector<std::string> tokens;
+
+        if(transFile.is_open())
+        {
+            std::getline(transFile, line);
+            tokens = split(line);
+            hypV[3] += std::atof(tokens[0].c_str());
+            hypV[4] += std::atof(tokens[1].c_str());
+            hypV[5] += std::atof(tokens[2].c_str());
+            transFile.close();
+        }
 
         testErrFile
             << expectedLoss << " "      // 0  - expected loss over the hypothesis pool
@@ -174,9 +220,9 @@ int main(int argc, const char* argv[])
             << hypV[0] << " "           // 5  - selected pose, rotation (1st component of Rodriguez vector)
             << hypV[1] << " "           // 6  - selected pose, rotation (2nd component of Rodriguez vector)
             << hypV[2] << " "           // 7  - selected pose, rotation (3th component of Rodriguez vector)
-            << hypV[3] << " "           // 8  - selected pose, translation in mm (x)
-            << hypV[4] << " "           // 9  - selected pose, translation in mm (y)
-            << hypV[5] << " "           // 10 - selected pose, translation in mm (z)
+            << hypV[3] << " "           // 8  - selected pose, translation in m (x)
+            << hypV[4] << " "           // 9  - selected pose, translation in m (y)
+            << hypV[5] << " "           // 10 - selected pose, translation in m (z)
             << std::endl;
 
         // store statistics for calculation of mean, median, stddev
