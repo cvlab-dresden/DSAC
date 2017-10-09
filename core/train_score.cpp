@@ -228,8 +228,6 @@ void assembleData(
             // calculate ground truth score value for this pose (-pose error * temperature)
             labels[i * hypsPerImage + h] = -temperature * std::max(poseGT.calcAngularDistance(poseNoise), cv::norm(poseGT.getTranslation() - poseNoise.getTranslation()) / 10.0);
         }
-
-        std::cin.ignore();
     }
 	
     std::cout << "Generated " << data.size() << " patches (" << correct / data.size() * 100 << "% correct) in " << stopW.stop() / 1000 << "s." << std::endl;
