@@ -41,7 +41,11 @@ endif()
 
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast")
-   
+
+
+add_library("opencv_dep_cudart" UNKNOWN IMPORTED)
+set_target_properties("opencv_dep_cudart" PROPERTIES IMPORTED_LOCATION /usr/local/cuda/lib64/libcudart.so)  
+
 add_executable(train_obj 
     train_obj.cpp
     util.cpp

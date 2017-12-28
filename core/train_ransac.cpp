@@ -73,6 +73,14 @@ int main(int argc, const char* argv[])
     std::vector<std::string> trainingSets = getSubPaths(trainingDir);
     std::cout << std::endl << BLUETEXT("Loading training set ...") << std::endl;
     jp::Dataset trainingDataset = jp::Dataset(trainingSets[0], 1);
+
+
+    //check if the traning set is empty
+    if (!trainingDataset.size())  
+    {
+        std::cout << std::endl << REDTEXT("The training set is empty") << std::endl;
+        return 0;
+    }
     
     #if DOVALIDATION
     std::string validationDir = dataDir + "validation/";
