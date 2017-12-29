@@ -63,6 +63,13 @@ int main(int argc, const char* argv[])
     std::vector<std::string> testSets = getSubPaths(dataDir);
     std::cout << std::endl << BLUETEXT("Loading test set ...") << std::endl;
     jp::Dataset testDataset = jp::Dataset(testSets[0], 1);
+
+    //check if test set is  empty
+    if(!testDataset.size())
+    {
+        std::cout << std::endl << REDTEXT("The test set is empty!") << std::endl;
+        return 0;
+    }
         
     // lua and models
     std::cout << "Loading script: " << baseScriptObj << std::endl;    
