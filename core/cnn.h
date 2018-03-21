@@ -63,6 +63,9 @@ inline bool safeSolvePnP(
     bool extrinsicGuess,
     int methodFlag)
 {
+    if(rot.type() == 0) rot = cv::Mat_::zeros(1, 3);
+    if(trans.type() == 0) trans= cv::Mat_::zeros(1, 3);
+
     if(!cv::solvePnP(objPts, imgPts, camMat, distCoeffs, rot, trans, extrinsicGuess,methodFlag))
     {
         rot = cv::Mat_<double>::zeros(1, 3);
