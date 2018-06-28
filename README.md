@@ -1,8 +1,8 @@
 # DSAC
 Code associated with the paper:
 
-E. Brachmann, A. Krull, S. Nowozin, J. Shotton, F. Michel, S. Gumhold, C. Rother, 
-"[DSAC – Differentiable RANSAC for Camera Localization](https://arxiv.org/abs/1611.05705)", 
+E. Brachmann, A. Krull, S. Nowozin, J. Shotton, F. Michel, S. Gumhold, C. Rother,  
+"[DSAC – Differentiable RANSAC for Camera Localization](https://arxiv.org/abs/1611.05705)",  
 CVPR 2017
 
 Please see the documentation.pdf for additional information. Also see the [project page](https://hci.iwr.uni-heidelberg.de/vislearn/research/scene-understanding/pose-estimation/#DSAC). You can download pre-trained models for 7Scenes [here](https://cloudstore.zih.tu-dresden.de/index.php/s/zvPvVD1b0M7EoVd/download)
